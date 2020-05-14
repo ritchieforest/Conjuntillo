@@ -49,9 +49,15 @@
                                         <input type="submit" name="comentar">
                                         <?php 
                                             if (isset($_POST['comentar'])) {
+                                                $file = fopen("comentarios.txt", "r");
+                                                $count=0;
+                                                while(!feof($file)) {
+                                                    $count=$count+1;
+                                                }
+                                                fclose($file);  
                                                 $file = fopen("comentarios.txt", "a");
 
-                                                fwrite($file, $_POST['text'] . PHP_EOL);
+                                                fwrite($file, strval($count)."#".$_POST['text'] . PHP_EOL);
 
                                                 fclose($file);
                                             }
@@ -65,6 +71,9 @@
                     <?php 
                     $file = fopen("comentarios.txt", "r");
                     while(!feof($file)) {
+                        $var=explode('#',fgets($file));
+                        if (!empty($var[1])) {
+
                      ?>
                     <div class="col-md-6 col-lg-4 offset-lg-4">
                         <div class="card">
@@ -72,14 +81,52 @@
                                 <div class="row" id="Raios">
                                     <div class="col-lg-1"><i class="fa fa-user"></i></div>
                                     <div class="col-lg-5 offset-lg-0"><em>Anonimus</em></div>
-                                </div><span id="ponerComentario"><?php echo fgets($file);?></span></div>
-                            <div></div>
+                                </div><span id="ponerComentario"><?php echo $var[1] ;?></span>
+                                    <br>
+                                    <hr>
+                                    <div class="col-lg-9">
+                                        <div class="row">
+                                            <?php 
+                                                   $file2 = fopen("contestar.txt", "r");
+                                                   while(!feof($file2)) {
+                                                     $var_res=explode('#',fgets($file2));
+                                                     if ($var[0]==$var_res[0]) {
+                                                 ?>  
+                                            <div class="col-lg-1"><i class="fa fa-user"></i></div>
+                                            <div class="col-lg-6 offset-lg-0"><small>Anonimus</small></div>
+                                            <div class="row">
+                                                  
+                                                <div class="col-lg-12"><small><?php echo $var_res[1]; ?></small></div>
+                                                          
+                                            </div>
+                                            <?php }} ?>
+                                         </div>   
+                                        <form method="POST">
+                                            <div class="form-row">
+                                                <input style="display: none!important;" type="text" name="valor" value="<?php echo $var[0]; ?>"/>
+                                                <div class="col-lg-1"><i class="fa fa-users"></i></div>
+                                                <div class="col-lg-10 offset-lg-0"><input id="Comentario" type="text" class="form-control" name="text" placeholder="Responder Comentario" style="font-size: 10px !important;" /></div>
+                                                <div class="col-lg-1"><input type="submit" class="btn btn-primary"  name="contestar"  style="width: 90px !important; height: 30px !important; font-size: 10px !important;" value="Responder"></div>   
+                                            </div>
+                                        </form> 
+                                    </div>
+                            </div>
                         </div>
                     </div>
-                <?php }
-                    fclose($file); 
+                <?php }}
+                    fclose($file);
+                    fclose($file2); 
+
 
                  ?>
+                 <?php 
+                    if (isset($_POST['contestar'])) {
+                        $cantidad=$_POST['valor'];
+                        $file = fopen("contestar.txt", "a");
+                        fwrite($file, strval($cantidad)."#".$_POST['text'] . PHP_EOL);
+                        fclose($file);
+                    }
+                ?>
                 </div>
             </div>
         </section>
